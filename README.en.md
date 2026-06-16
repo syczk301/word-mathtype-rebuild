@@ -90,4 +90,4 @@ After this, Codex should use Word's MathType add-in to insert a new right-number
 
 ## License
 
-No license has been specified yet.
+This project is licensed under the [MIT License](./LICENSE).

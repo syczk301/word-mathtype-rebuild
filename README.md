@@ -90,4 +90,4 @@ python scripts\prepare_formula_in_word.py 3 --doc manuscript.docx --mapping form
 
 ## 许可证
 
-尚未指定许可证。
+本项目使用 [MIT License](./LICENSE)。
