@@ -1,0 +1,4 @@
+interface:
+  display_name: "Word MathType Rebuild"
+  short_description: "逐个重建 Word 原生公式为 MathType"
+  default_prompt: "Use $word-mathtype-rebuild to rebuild Word native equations as MathType equations in a DOCX one by one."
