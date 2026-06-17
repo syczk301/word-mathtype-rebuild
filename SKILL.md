@@ -1,6 +1,6 @@
 ---
 name: word-mathtype-rebuild
-description: Rebuild Microsoft Word native equations as MathType equations in .docx manuscripts. Use when Codex must operate Word with the MathType add-in to replace Word OMML formulas one by one, especially display equations that must be newly inserted as MathType right-numbered equations and original Word equations deleted afterward, without using MathType bulk conversion.
+description: Rebuild Microsoft Word native equations as MathType equations in .docx manuscripts, including automatic extraction of formula mapping files. Use when Codex must operate Word with the MathType add-in to replace Word OMML formulas one by one, especially display equations that must be newly inserted as MathType right-numbered equations and original Word equations deleted afterward, without using MathType bulk conversion.
 ---
 
 # Word MathType Rebuild
@@ -30,15 +30,18 @@ Use this skill for fragile Word + MathType conversion work where the user wants 
    - Never overwrite this backup.
 
 2. Extract display formulas.
-   - Use `scripts/extract_display_formulas.py <docx> --out display_formulas_text.txt`.
-   - Review each extracted formula and prepare a TeX list manually. MathType TeX parsing is imperfect; avoid commands it mishandles.
+   - Use `scripts/extract_display_formulas.py <docx> --out display_formulas_text.txt --mapping-out formula_mapping.py`.
+   - This writes both a human-readable extraction report and a `formula_mapping.py` module for `prepare_formula_in_word.py`.
+   - The default `--scope auto` extracts `m:oMathPara` display formulas when present. If no display formulas are present but Word native formulas remain, it falls back to mapping all `m:oMath` formulas and prints a warning.
+   - The generated `DISPLAY_OMATH_INDEXES` are automatic. Review the generated `FORMULAS` entries before insertion because the extracted strings are OMML linear text, not guaranteed MathType TeX.
    - Known safer replacements:
      - Use `floor(...)` instead of `\lfloor ... \rfloor` if MathType renders floor delimiters as broken glyphs.
      - Use plain function names like `Top-u` when `\operatorname{Top}\text{-}u` renders poorly.
 
 3. Record original display equation indexes.
    - Display equations in DOCX XML are `m:oMathPara`; Word COM indexes all `OMaths`.
-   - Use the extraction script output to map display equations to Word COM `OMaths` indexes.
+   - Use the auto-generated `DISPLAY_OMATH_INDEXES` in `formula_mapping.py`; only override them if Word COM verification proves a mismatch.
+   - If `EXTRACTION_SCOPE = "all-fallback"`, confirm that the target items are really the formulas the user wants to rebuild before deleting originals.
    - Process display formulas from highest original index to lowest.
 
 4. For each display formula:
@@ -83,7 +86,7 @@ Use this skill for fragile Word + MathType conversion work where the user wants 
 
 ## Minimal Mapping Module Format
 
-Create a `formula_mapping.py` in the working directory:
+The extraction script creates `formula_mapping.py` automatically:
 
 ```python
 FORMULAS = [
@@ -95,3 +98,4 @@ DISPLAY_OMATH_INDEXES = [2, 8]
 ```
 
 The helper scripts expect `FORMULAS[n-1]` and `DISPLAY_OMATH_INDEXES[n-1]` to correspond to display formula number `n`.
+If the generated file includes `DISPLAY_OMATH_INDEX_GROUPS`, keep it as audit metadata; `prepare_formula_in_word.py` uses the first OMath index for each display formula.

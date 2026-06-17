@@ -11,7 +11,7 @@
 ## 功能
 
 - 从 `.docx` 中提取行间 Word 原生公式，供逐个核对。
-- 辅助将行间公式映射到 Word COM 的 `OMaths` 索引。
+- 自动生成行间公式映射文件，将行间公式映射到 Word COM 的 `OMaths` 索引。
 - 将 Word 光标定位到目标原公式之后，准备插入新的 MathType 公式。
 - 指导 Codex 操作 MathType 插件，新建右编号 MathType 公式。
 - 只有在新的 MathType 对象已经插入后，才删除原 Word 公式。
@@ -47,7 +47,7 @@ git clone https://github.com/syczk301/word-mathtype-rebuild.git "$env:USERPROFIL
 使用 $word-mathtype-rebuild，把这个 Word 文档里的行间原生公式逐个新建为 MathType 右编号公式，然后删除原 Word 公式。
 ```
 
-该流程需要在工作目录中准备公式映射文件：
+提取脚本会自动在工作目录中生成公式映射文件：
 
 ```python
 FORMULAS = [
@@ -58,16 +58,16 @@ FORMULAS = [
 DISPLAY_OMATH_INDEXES = [2, 8]
 ```
 
-其中 `FORMULAS[n-1]` 与 `DISPLAY_OMATH_INDEXES[n-1]` 对应第 `n` 个行间公式。
+其中 `FORMULAS[n-1]` 与 `DISPLAY_OMATH_INDEXES[n-1]` 对应第 `n` 个行间公式。生成的 `FORMULAS` 来自 OMML 线性文本，插入 MathType 前仍需核对并按需要改写成 MathType 可解析的 TeX。
 
 ## 内置脚本
 
 ### `scripts/extract_display_formulas.py`
 
-从 DOCX 中提取行间 OMML 公式：
+从 DOCX 中提取行间 OMML 公式，并自动生成 `formula_mapping.py`。默认 `--scope auto` 会优先提取 `m:oMathPara` 行间公式；如果没有行间公式但仍有 Word 原生公式，则退回映射全部 `m:oMath` 并打印警告。
 
 ```powershell
-python scripts\extract_display_formulas.py manuscript.docx --out display_formulas_text.txt
+python scripts\extract_display_formulas.py manuscript.docx --out display_formulas_text.txt --mapping-out formula_mapping.py
 ```
 
 ### `scripts/prepare_formula_in_word.py`

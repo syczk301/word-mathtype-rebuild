@@ -11,7 +11,7 @@ This skill is designed for manuscript and technical-document editing workflows w
 ## What It Does
 
 - Extracts display equations from a `.docx` for review.
-- Helps map display equations to Word COM `OMaths` indexes.
+- Automatically generates a formula mapping file that maps display equations to Word COM `OMaths` indexes.
 - Prepares the Word selection immediately after a target original equation.
 - Guides Codex through inserting a new MathType right-numbered equation.
 - Deletes the original Word equation only after the new MathType object exists.
@@ -47,7 +47,7 @@ Invoke the skill in Codex with a request like:
 Use $word-mathtype-rebuild to replace the display Word equations in this DOCX with new MathType right-numbered equations one by one.
 ```
 
-The workflow expects a formula mapping file in the working directory:
+The extraction script automatically generates a formula mapping file in the working directory:
 
 ```python
 FORMULAS = [
@@ -58,16 +58,16 @@ FORMULAS = [
 DISPLAY_OMATH_INDEXES = [2, 8]
 ```
 
-Each `FORMULAS[n-1]` entry corresponds to `DISPLAY_OMATH_INDEXES[n-1]` for display formula `n`.
+Each `FORMULAS[n-1]` entry corresponds to `DISPLAY_OMATH_INDEXES[n-1]` for display formula `n`. Generated `FORMULAS` entries come from OMML linear text and still need review or rewriting into MathType-compatible TeX before insertion.
 
 ## Included Scripts
 
 ### `scripts/extract_display_formulas.py`
 
-Extract display OMML formulas from a DOCX:
+Extract display OMML formulas from a DOCX and automatically generate `formula_mapping.py`. The default `--scope auto` prefers `m:oMathPara` display formulas; if none are present but Word native formulas remain, it falls back to mapping all `m:oMath` formulas and prints a warning.
 
 ```powershell
-python scripts\extract_display_formulas.py manuscript.docx --out display_formulas_text.txt
+python scripts\extract_display_formulas.py manuscript.docx --out display_formulas_text.txt --mapping-out formula_mapping.py
 ```
 
 ### `scripts/prepare_formula_in_word.py`
